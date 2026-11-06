@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+build/
+dist/
+outputs/
+recordings/
+data/
+# Local-only content.
+/private/
+# Original screenshots; the README uses the curated figures in docs/images/.
+/1.png
+/2.png
+/3.png

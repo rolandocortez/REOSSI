@@ -1,0 +1,65 @@
+{
+  "camera_size": [
+    1920,
+    1080
+  ],
+  "projector_size": [
+    1920,
+    1080
+  ],
+  "board": {
+    "squares": [
+      5,
+      7
+    ],
+    "square_length": 0.04,
+    "marker_length": 0.02,
+    "dictionary": "DICT_6X6_250"
+  },
+  "board_image_size": [
+    1000,
+    1400
+  ],
+  "circle_grid": {
+    "size": [
+      4,
+      11
+    ],
+    "radius": 15,
+    "origin": [
+      800,
+      350
+    ]
+  },
+  "stereo_image_size": [
+    2560,
+    1440
+  ],
+  "image_pattern": "*.jpg",
+  "minimum_views": 10,
+  "length_unit": "m",
+  "homography_reprojection_threshold": 5.0,
+  "acquisition": {
+    "camera": "opencv",
+    "camera_backend": "auto",
+    "fps": 30,
+    "flip": false,
+    "window_position": [
+      2020,
+      100
+    ],
+    "consecutive_valid_frames": 6
+  },
+  "camera_criteria": {
+    "max_iterations": 500,
+    "epsilon": 1e-10
+  },
+  "projector_criteria": {
+    "max_iterations": 100,
+    "epsilon": 1e-12
+  },
+  "stereo_criteria": {
+    "max_iterations": 100,
+    "epsilon": 1e-10
+  }
+}

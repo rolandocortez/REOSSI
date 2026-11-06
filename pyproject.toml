@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "reossi"
+version = "0.1.0"
+description = "Structured-light scanning and digital experiments with REOSSI"
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+authors = [{ name = "Rolando Cortez Garcia" }]
+license-files = ["LICENSES/Charron-MIT.txt"]
+dependencies = ["numpy==1.26.2", "opencv-contrib-python==4.8.0.76"]
+
+[project.optional-dependencies]
+mesh = ["trimesh>=4.5,<6"]
+plots = ["matplotlib==3.8.2"]
+oak = ["depthai==2.24.0.0"]
+dev = ["pytest==8.4.2", "ruff==0.17.3"]
+
+[project.scripts]
+reossi = "reossi.cli.main:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+ignore = ["E501"]

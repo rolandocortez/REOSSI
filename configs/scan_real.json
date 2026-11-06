@@ -1,0 +1,21 @@
+{
+  "plan": {
+    "mode": "reossi",
+    "projector_size": [1920, 1080],
+    "emulated_size": [320, 180],
+    "target_size": null,
+    "repeats": 2
+  },
+  "acquisition": {
+    "camera": "opencv",
+    "camera_index": 0,
+    "camera_backend": "auto",
+    "camera_size": [1920, 1080],
+    "fps": 30,
+    "settle_seconds": 1,
+    "flip": false,
+    "window_position": [2020, 100],
+    "fullscreen": true,
+    "frame_timeout_seconds": 30
+  }
+}

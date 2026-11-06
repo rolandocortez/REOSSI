@@ -1,0 +1,13 @@
+{
+  "mode": "reossi",
+  "projector_size": [
+    160,
+    120
+  ],
+  "emulated_size": [
+    40,
+    30
+  ],
+  "target_size": null,
+  "repeats": 2
+}

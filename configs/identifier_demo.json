@@ -1,0 +1,12 @@
+{
+  "stripe_count": 4,
+  "stripe_width": 6,
+  "height": 10,
+  "curvature": 5,
+  "scale_factor": 3,
+  "positions": 3,
+  "shift_pixels": 2,
+  "step": 1,
+  "axis": 1,
+  "fill_value": 0
+}

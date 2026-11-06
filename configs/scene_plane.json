@@ -1,0 +1,72 @@
+{
+  "camera": {
+    "image_size": [
+      80,
+      60
+    ],
+    "matrix": [
+      [
+        80,
+        0,
+        40
+      ],
+      [
+        0,
+        80,
+        30
+      ],
+      [
+        0,
+        0,
+        1
+      ]
+    ],
+    "center": [
+      0,
+      0,
+      0
+    ]
+  },
+  "projector": {
+    "image_size": [
+      160,
+      120
+    ],
+    "matrix": [
+      [
+        160,
+        0,
+        80
+      ],
+      [
+        0,
+        160,
+        60
+      ],
+      [
+        0,
+        0,
+        1
+      ]
+    ],
+    "center": [
+      0.3,
+      0,
+      0
+    ]
+  },
+  "surface": {
+    "width": 4,
+    "height": 3,
+    "depth": 2,
+    "columns": 2,
+    "rows": 2
+  },
+  "sensor": {
+    "black_level": 2,
+    "direct_level": 180,
+    "noise_std": 0
+  },
+  "length_unit": "m",
+  "seed": 0
+}

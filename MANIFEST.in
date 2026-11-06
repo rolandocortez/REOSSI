@@ -1,0 +1,11 @@
+include README.md ROADMAP.md THIRD_PARTY_NOTICES.md
+recursive-include LICENSES *.txt
+recursive-include configs *.json
+recursive-include docs *.md *.png
+recursive-include examples *.py
+recursive-include tests *.py
+prune outputs
+prune recordings
+prune data
+prune private
+global-exclude __pycache__ *.py[cod]
