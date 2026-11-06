@@ -28,14 +28,17 @@ jobs:
       MKL_NUM_THREADS: "1"
       NUMEXPR_NUM_THREADS: "1"
       MPLBACKEND: Agg
-      MPLCONFIGDIR: ${{ runner.temp }}/reossi-matplotlib
       PYTHONDONTWRITEBYTECODE: "1"
-      REOSSI_SMOKE_DIR: ${{ runner.temp }}/reossi-public-smoke
     steps:
       - name: Check out public source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+
+      - name: Set temporary output directories
+        run: |
+          echo "MPLCONFIGDIR=$RUNNER_TEMP/reossi-matplotlib" >> "$GITHUB_ENV"
+          echo "REOSSI_SMOKE_DIR=$RUNNER_TEMP/reossi-public-smoke" >> "$GITHUB_ENV"
 
       - name: Set up Python
         uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
