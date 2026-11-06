@@ -67,7 +67,9 @@ The model counter `camera_visible_unilluminated_pixels` includes camera-visible 
 
 The initial model has uniform direct response, scalar black level and optional additive sensor noise. It has no lens distortion, projector blur, texture/BRDF, transparency, interreflection or subsurface scattering. Its direct-only images are not a ground-truth model of global light separation.
 
-The recovered REOSSI generator shifts whole emulated identifier cells. Simulators preserve this rule, including its coordinate errors, rather than inserting an unrequested native-subcell correction. Conventional ideal-plane tests establish geometric/decoder correctness for their cases; passing source-compatible REOSSI tests does not establish ideal native-coordinate recovery.
+The default `emulated_cells` placement preserves the recovered REOSSI generator's whole-cell shifts and their coordinate errors. The explicit `native_pixels` option enlarges an unshifted pattern to the native projector raster and shifts its column/row bit images by one native pixel per position. Black/white references remain fixed; shifted prefixes encode zero without wrapping. This option represents the Chapter 8 experiment with native target resolution, for which `step=W_HD=1` is stated explicitly. It requires equal integer enlargement factors in both axes and does not support an intermediate target grid. It changes neither the default placement nor physical capture behavior.
+
+For example, add `--pattern-placement native_pixels` to `simulate-scene`, or run the [three-mode comparison](comparison.md). The model records the selected placement in `simulation.json`. Conventional ideal-plane checks and identifier reconstruction remain separate from optical realism or physical scanner accuracy.
 
 Resources are bounded before expensive allocation: one image-stack limit, a camera/shadow ray-triangle work budget, and a separate reconstruction correspondence limit. The direct triangle implementation is O(camera pixels × triangles); large scenes require an accelerated renderer. Check process memory separately from the per-stack limit.
 

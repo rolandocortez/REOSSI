@@ -110,6 +110,55 @@ def test_virtual_capture_replay_and_reconstruction_commands(
     assert (cloud / "cloud.ply").is_file()
 
 
+def test_scene_command_uses_explicit_native_pixel_placement(tmp_path, capsys):
+    plan = tmp_path / "plan.json"
+    plan.write_text(
+        json.dumps(
+            {
+                "mode": "reossi",
+                "projector_size": [24, 16],
+                "emulated_size": [12, 8],
+                "repeats": 1,
+            }
+        )
+    )
+    scene = tmp_path / "scene.json"
+    scene.write_text(
+        json.dumps(
+            {
+                "camera": {"image_size": [24, 16], "focal_length": 24},
+                "projector": {
+                    "image_size": [24, 16],
+                    "focal_length": 24,
+                    "center": [0.25, 0, 0],
+                },
+                "surface": {"width": 4, "height": 3, "depth": 2},
+            }
+        )
+    )
+    output = tmp_path / "native-scan"
+    assert (
+        main(
+            [
+                "simulate-scene",
+                "--config",
+                str(plan),
+                "--scene-config",
+                str(scene),
+                "--output",
+                str(output),
+                "--pattern-placement",
+                "native_pixels",
+            ]
+        )
+        == 0
+    )
+    metrics = json.loads(capsys.readouterr().out)
+    assert metrics["joint_exact_fraction_of_illuminated"] == 1
+    metadata = json.loads((output / "simulation.json").read_text())
+    assert metadata["model"]["pattern_placement"] == "native_pixels"
+
+
 def test_saved_cloud_and_identifier_view_commands(scene_cli, tmp_path, capsys):
     matplotlib = pytest.importorskip("matplotlib")
     matplotlib.use("Agg")

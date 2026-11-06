@@ -48,6 +48,12 @@ def register_simulation_commands(commands) -> None:
     scene.add_argument("--save-captures", action="store_true")
     scene.add_argument("--seed", type=int)
     scene.add_argument("--noise-std", type=float)
+    scene.add_argument(
+        "--pattern-placement",
+        choices=("emulated_cells", "native_pixels"),
+        default="emulated_cells",
+        help="Retain source cell shifts, or shift the enlarged raster by native pixels",
+    )
     scene.add_argument("--max-sequence-mib", type=float, default=64)
     scene.add_argument("--max-triangle-tests", type=int, default=20_000_000)
     scene.set_defaults(handler=simulate_scene)
@@ -185,6 +191,7 @@ def simulate_scene(args) -> None:
         plan,
         sensor=SensorModel(**sensor_values),
         seed=args.seed if args.seed is not None else settings.get("seed", 0),
+        pattern_placement=args.pattern_placement,
         max_sequence_mib=args.max_sequence_mib,
         max_triangle_tests=args.max_triangle_tests,
         recording_folder=output / "captures" if args.save_captures else None,

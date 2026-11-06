@@ -72,3 +72,34 @@ def render_gray_patterns(codewords: np.ndarray, width: int, height: int) -> np.n
                 )
 
     return images
+
+
+def shift_native_patterns(
+    patterns: np.ndarray,
+    projector_size: tuple[int, int],
+    displacement: int = 0,
+) -> np.ndarray:
+    """Enlarge a Gray sequence and translate bit frames by native pixels.
+
+    Nearest-neighbor enlargement precedes translation. Column patterns move
+    right and row patterns move down, without wraparound. The new prefix
+    represents Gray identifier zero: normal bits are black, inverses white.
+    Black/white reference frames remain unchanged. The input is not modified.
+    """
+    width, height = projector_size
+    columns = np.arange(width) * patterns.shape[2] // width
+    rows = np.arange(height) * patterns.shape[1] // height
+    native = patterns[:, rows[:, None], columns[None, :]]
+    if displacement == 0:
+        return native
+    inverse_start = (len(patterns) - 2) // 2 + 2
+    for frame_index in range(2, len(patterns)):
+        frame = native[frame_index]
+        prefix = 0 if frame_index < inverse_start else 255
+        if frame_index % 2 == 0:
+            frame[:, displacement:] = frame[:, :-displacement].copy()
+            frame[:, :displacement] = prefix
+        else:
+            frame[displacement:, :] = frame[:-displacement, :].copy()
+            frame[:displacement, :] = prefix
+    return native

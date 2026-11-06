@@ -63,7 +63,7 @@ The geometry primitive retains the reference sine-rule calculation, corresponden
 
 ## Source semantics requiring further validation
 
-The recovered generator rolls whole emulated identifier cells before rendering. That differs from an explicitly specified native-resolution subcell shift. Simulators retain this behavior, and compare against independently generated geometric truth rather than adjusting expected coordinates.
+The recovered generator rolls whole emulated identifier cells before rendering. The default simulation placement retains that behavior. An explicit `native_pixels` simulation placement instead shifts an enlarged raster by native pixels, as specified for the Chapter 8 experiment with native target resolution. Both compare against independently generated geometric truth; expected coordinates are not adjusted to match decoded results. See the [comparison walkthrough](comparison.md).
 
 One-based identifiers through a power-of-two maximum exceed the retained Gray bit count at the final identifier. The historical truncated result remains visible. Resolution factors use integer-truncated maximum-dimension ratios; nonproportional dimensions are not a validated physical generalization.
 

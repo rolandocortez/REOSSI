@@ -8,7 +8,7 @@ noise. Its known surface geometry is independent of the decoded identifiers.
 import json
 from collections.abc import Iterator
 from dataclasses import asdict, dataclass
-from math import isfinite
+from math import isfinite, prod
 from pathlib import Path
 
 import cv2
@@ -18,7 +18,9 @@ from ..acquisition.recording import save_identifier_maps
 from ..calibration.workflow import StereoCalibration
 from ..pipeline import (
     IdentifierMaps,
+    PatternPlacement,
     generate_pattern_sequence,
+    pattern_raster_size,
     reconstruct_identifier_maps,
 )
 from ..plan import ScanPlan
@@ -38,8 +40,9 @@ def render_sequence(
     """Return grayscale ``(N,H,W)`` images for one displayed pattern sequence.
 
     Continuous projector coordinates sample the nearest native projector
-    pixel, then map into the low-resolution raster by integer floor. This
-    retains the legacy placement of patterns; no subcell shift is invented.
+    pixel, then map into the supplied raster by integer floor. A native-sized
+    raster is sampled directly; a smaller raster retains source enlargement.
+    Pattern placement is prepared before this image-formation operation.
     Unilluminated/background pixels receive only the black level and noise.
     """
     pixels = np.where(
@@ -143,19 +146,21 @@ def simulate_scene_scan(
     max_triangle_tests: int = 20_000_000,
     recording_folder: str | Path | None = None,
     length_unit: str = "m",
+    pattern_placement: PatternPlacement = "emulated_cells",
 ) -> SceneScanResult:
     """Render ordered virtual captures and run the shared REOSSI pipeline.
 
     At most one capture sequence is generated at a time. Optional recordings
     use the same run/displacement NPZ layout as live acquisition. The sequence
     guard includes capture and pattern arrays, not all decoder intermediates.
+    Placement defaults to the preserved emulated-cell roll. The explicit
+    native-pixel profile covers the chapter-8 full-projector target case.
     """
     if projector.image_size != plan.projector_size:
         raise ValueError("Virtual projector dimensions must match the scan plan")
+    pattern_size = pattern_raster_size(plan, pattern_placement)
     width, height = camera.image_size
-    sequence_bytes = plan.sequence_length * (
-        width * height * 8 + np.prod(plan.pattern_size)
-    )
+    sequence_bytes = plan.sequence_length * (width * height * 8 + prod(pattern_size))
     if (
         not isfinite(max_sequence_mib)
         or max_sequence_mib <= 0
@@ -193,7 +198,9 @@ def simulate_scene_scan(
 
     def positions() -> Iterator[Iterator[np.ndarray]]:
         for displacement in range(plan.displacement_count):
-            patterns = generate_pattern_sequence(plan, displacement)
+            patterns = generate_pattern_sequence(
+                plan, displacement, pattern_placement=pattern_placement
+            )
 
             def runs() -> Iterator[np.ndarray]:
                 nonlocal white_image
@@ -237,6 +244,7 @@ def simulate_scene_scan(
     )
     model = {
         "name": "direct_pinhole_triangle_mesh",
+        "pattern_placement": pattern_placement,
         "sensor": asdict(sensor),
         "seed": seed,
         "length_unit": length_unit,

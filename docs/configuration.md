@@ -156,7 +156,7 @@ Scene JSON separates these fields:
 | `sensor` | Finite nonnegative `black_level`, `direct_level`, `noise_std`, defaulting to 2/180/0 in 0..255 intensity units. Noise is added before clipping; these are not erasure probabilities. |
 | Root | `seed` for reproducibility and `length_unit` for world/calibration coordinates. |
 
-`--mesh` replaces the generated surface, `--seed`/`--noise-std` override scene values, and `--save-captures` preserves replay-compatible images. The raster command exposes camera size, intensity noise and seed as CLI flags. See [simulation](simulation.md) for image formation, supported mesh formats and model limits.
+`--mesh` replaces the generated surface, `--seed`/`--noise-std` override scene values, and `--save-captures` preserves replay-compatible images. `simulate-scene --pattern-placement` selects `emulated_cells` (the source-compatible default) or `native_pixels` (one native pixel per position, with no intermediate target grid). This scene-rendering option is saved in the model metadata and does not change scan-plan JSON or physical acquisition. The raster command exposes camera size, intensity noise and seed as CLI flags. See [simulation](simulation.md) for image formation, supported mesh formats and model limits.
 
 ## Replay, reconstruction and resource controls
 

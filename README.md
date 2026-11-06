@@ -76,6 +76,14 @@ The direct identifier demonstration bypasses image formation and decoding. It ex
 
 The initial 3D renderer models pinhole geometry, visibility and direct illumination with optional intensity noise. It does not model global light transport or validate physical scanner accuracy. See [simulation](docs/simulation.md).
 
+Compare conventional, LD and REOSSI processing on one small, known 3D plane:
+
+```bash
+python examples/compare_modes.py --output outputs/mode-comparison --plot
+```
+
+The example uses native-pixel pattern displacements, explicit identifier origins and the same virtual rig for all three modes. It saves point clouds, identifier maps and comparison metrics. See [the comparison walkthrough](docs/comparison.md) for its assumptions and the preserved source-placement option.
+
 ## Physical scanner workflow
 
 Edit [configs/calibration.json](configs/calibration.json) to match the actual board, image sizes, camera and projector. Measure printed square/marker dimensions and keep frame orientation consistent during calibration and scanning.

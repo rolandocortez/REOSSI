@@ -4,6 +4,7 @@
 
 from collections.abc import Iterable
 from dataclasses import dataclass
+from typing import Literal
 
 import numpy as np
 
@@ -15,7 +16,13 @@ from .structured_light.decoding import (
     decode_sequence,
 )
 from .structured_light.illumination import IlluminationEstimator
-from .structured_light.patterns import generate_gray_codewords, render_gray_patterns
+from .structured_light.patterns import (
+    generate_gray_codewords,
+    render_gray_patterns,
+    shift_native_patterns,
+)
+
+PatternPlacement = Literal["emulated_cells", "native_pixels"]
 
 
 @dataclass
@@ -26,12 +33,50 @@ class IdentifierMaps:
     rows: np.ndarray
 
 
-def generate_pattern_sequence(plan: ScanPlan, displacement: int = 0) -> np.ndarray:
-    """Generate the same LD/native-sized sequence as the chosen source path.
+def pattern_raster_size(
+    plan: ScanPlan, pattern_placement: PatternPlacement = "emulated_cells"
+) -> tuple[int, int]:
+    """Resolve the effective raster and validate placement before allocation.
 
-    This intentionally retains the historical shift of identifier cells before
-    rasterization. It does not introduce native-resolution subcell shifting.
+    Native-pixel placement currently covers the chapter-8 case whose target
+    raster is the projector raster. Equal integer enlargement on both axes
+    keeps its physical step distinct from a displacement of entire LD cells.
     """
+    if not isinstance(pattern_placement, str) or pattern_placement not in {
+        "emulated_cells",
+        "native_pixels",
+    }:
+        raise ValueError("pattern_placement must be emulated_cells or native_pixels")
+    if pattern_placement == "emulated_cells":
+        return plan.pattern_size
+    if plan.target_size is not None:
+        raise ValueError(
+            "Native-pixel placement does not support an intermediate target"
+        )
+    native_width, native_height = plan.projector_size
+    width, height = plan.pattern_size
+    if (
+        native_width % width
+        or native_height % height
+        or native_width // width != native_height // height
+    ):
+        raise ValueError("Native-pixel placement requires equal integer scale factors")
+    return plan.projector_size
+
+
+def generate_pattern_sequence(
+    plan: ScanPlan,
+    displacement: int = 0,
+    *,
+    pattern_placement: PatternPlacement = "emulated_cells",
+) -> np.ndarray:
+    """Generate the selected placement while retaining the source default.
+
+    ``emulated_cells`` preserves the historical cell roll before rasterizing.
+    ``native_pixels`` enlarges an unshifted LD raster, then translates its bit
+    frames right/down by the native-pixel displacement. References are fixed.
+    """
+    pattern_raster_size(plan, pattern_placement)
     if not 0 <= displacement < plan.displacement_count:
         raise ValueError("Displacement is outside this scan plan")
     width, height = plan.pattern_size
@@ -39,9 +84,12 @@ def generate_pattern_sequence(plan: ScanPlan, displacement: int = 0) -> np.ndarr
         width,
         height,
         identifier_origin=plan.identifier_origin,
-        displacement=displacement,
+        displacement=displacement if pattern_placement == "emulated_cells" else 0,
     )
-    return render_gray_patterns(words, width, height)
+    patterns = render_gray_patterns(words, width, height)
+    if pattern_placement == "native_pixels" and plan.mode != "conventional":
+        return shift_native_patterns(patterns, plan.projector_size, displacement)
+    return patterns
 
 
 def decode_displacement(
