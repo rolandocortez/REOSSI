@@ -14,7 +14,7 @@ This roadmap records the project scope and validation gates. It is not a claim t
 | Triangle scenes | Camera/projector geometry, direct pattern rendering, visibility, geometric truth, replay and small NPZ/OBJ/STL/PLY round trips | Broader scenes and independently checked geometric cases |
 | Identifier experiments | Direct entry at the map transformation/fusion boundary | Keep logical map models distinct from optical rendering |
 | Optical fidelity | Direct-only scalar response is explicit | Decide blur/material/global-transport models and validate them separately |
-| Quality | Autonomous tests, formatting, lint, local Python 3.10–3.12 installation checks and prepared CI | First hosted CI run and continued maintenance of explicit validation scope |
+| Quality | Autonomous tests, formatting, lint, local installation checks and passing GitHub Actions checks on Python 3.10–3.12 | Maintain CI checks and explicit validation scope as the project evolves |
 
 ## Validation dependencies
 
