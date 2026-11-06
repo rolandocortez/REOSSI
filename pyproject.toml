@@ -9,7 +9,8 @@ description = "Structured-light scanning and digital experiments with REOSSI"
 readme = "README.md"
 requires-python = ">=3.10,<3.13"
 authors = [{ name = "Rolando Cortez Garcia" }]
-license-files = ["LICENSES/Charron-MIT.txt"]
+license = "PolyForm-Noncommercial-1.0.0 AND MIT"
+license-files = ["LICENSE", "NOTICE", "LICENSES/Charron-MIT.txt"]
 dependencies = ["numpy==1.26.2", "opencv-contrib-python==4.8.0.76"]
 
 [project.optional-dependencies]

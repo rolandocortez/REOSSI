@@ -1,0 +1,15 @@
+REOSSI
+
+Required Notice: Copyright 2026 Rolando Cortez Garcia
+
+Original REOSSI contributions are licensed under the PolyForm Noncommercial
+License 1.0.0 in LICENSE. This includes the original identifier reconstruction
+operations and project-specific orchestration, integration and infrastructure.
+
+Adapted third-party material retains its existing permissions. In particular:
+Copyright (c) 2023 Guillaume Charron
+MIT terms: LICENSES/Charron-MIT.txt
+
+The PolyForm terms do not replace or restrict the MIT permissions for the
+inherited material itself. See THIRD_PARTY_NOTICES.md and docs/licensing.md
+for the component and mixed-file boundaries.

@@ -1,5 +1,7 @@
 # Third-party provenance
 
+Original REOSSI contributions are licensed under [PolyForm Noncommercial 1.0.0](LICENSE), with their required notice in [NOTICE](NOTICE). The license applies to the original contributions, including original additions to adapted files; it does not remove the existing MIT permissions for inherited portions. The [licensing map](docs/licensing.md) distinguishes those scopes by module and operation.
+
 ## Guillaume Charron's scanner
 
 The structured-light foundation is adapted from [3DScanner-GrayCode](https://github.com/guillaume-charron/3DScanner-GrayCode), pinned to commit `6f8abf0257c727eed81cc249edb85d43010c7b3d` (2023-12-22).
@@ -19,4 +21,4 @@ Charron's [original README](https://github.com/guillaume-charron/3DScanner-GrayC
 
 The reference bibliography includes Xu and Aliaga (2007), *Robust Pixel Classification for 3D Modeling with Structured Light*; Nayar et al. (2006), *Fast Separation of Direct and Global Components of a Scene Using High Frequency Illumination*; Moreno and Taubin (2012), *Simple, Accurate, and Robust Projector-Camera Calibration*; and Yang, Normand and Moreau (2016), *Practical and Precise Projector-Camera Calibration*. Full bibliographic records are available in the linked upstream README.
 
-No source from other structured-light repositories has been merged into this initial project. Original REOSSI contributions do not acquire an MIT license merely because this notice accompanies inherited code. The project's overall licensing decision is pending.
+No source from other structured-light repositories has been merged into this initial project. Original REOSSI contributions do not acquire an MIT license merely because this notice accompanies inherited code. The distribution contains PolyForm-licensed original contributions and MIT-licensed inherited material, rather than offering the entire project under either license at the recipient's choice.

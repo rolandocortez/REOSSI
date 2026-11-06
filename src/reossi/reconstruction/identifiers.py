@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+# Copyright 2026 Rolando Cortez Garcia
 """Legacy REOSSI identifier transformation and layer fusion."""
 
 # REOSSI operations derived from Rolando Cortez's legacy implementation.

@@ -18,6 +18,10 @@ This map identifies the maintained responsibilities. Renaming or reorganizing in
 
 In particular, `np.max(cache_h_codes, axis=0)` belongs to repeated-bit aggregation. Scaling the resulting integer maps for each displacement and taking their final maximum is a separate operation, even though both stages use a maximum.
 
+Original contributions are licensed under PolyForm Noncommercial 1.0.0; inherited
+portions retain their MIT terms. The [licensing map](licensing.md) identifies the
+original operations, adapted implementations and mixed-file boundaries.
+
 ## 1. Plan the native, emulated and target grids
 
 Implementation: [`ScanPlan`](../src/reossi/plan.py).

@@ -1,4 +1,4 @@
-include README.md ROADMAP.md THIRD_PARTY_NOTICES.md
+include README.md ROADMAP.md LICENSE NOTICE THIRD_PARTY_NOTICES.md
 recursive-include LICENSES *.txt
 recursive-include configs *.json
 recursive-include docs *.md *.png

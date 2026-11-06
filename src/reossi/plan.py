@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+# Copyright 2026 Rolando Cortez Garcia
 """Explicit parameters for the original scanner and historical REOSSI paths."""
 
 from dataclasses import asdict, dataclass, fields

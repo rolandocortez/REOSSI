@@ -147,4 +147,4 @@ The initial numerical profiles preserve the recovered implementation. See [archi
 
 Selected structured-light scanning components are adapted from [Guillaume Charron's 3DScanner-GrayCode](https://github.com/guillaume-charron/3DScanner-GrayCode). Their provenance and applicable notices are documented in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md), with the inherited MIT terms retained in [LICENSES/Charron-MIT.txt](LICENSES/Charron-MIT.txt).
 
-No overall software license has yet been selected for the original REOSSI contributions. The retained third-party notice does not assign an MIT license to those contributions.
+Original REOSSI contributions are licensed under [PolyForm Noncommercial 1.0.0](LICENSE), with the required copyright notice in [NOTICE](NOTICE). Uses outside its permitted purposes require a separate agreement with Rolando Cortez Garcia. The adapted third-party portions retain their MIT permissions; this does not make the original REOSSI contributions MIT-licensed. See [licensing and contribution boundaries](docs/licensing.md) for the original operations, mixed files and commercial-use scope.

@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0 AND MIT
+# Copyright 2026 Rolando Cortez Garcia
+# Copyright (c) 2023 Guillaume Charron
+# Original additions and inherited portions: see docs/licensing.md.
 """Reference direct/global illumination estimation for Gray-code decoding."""
 
 # Derived from Guillaume Charron's implementation (MIT).

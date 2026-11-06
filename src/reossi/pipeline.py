@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+# Copyright 2026 Rolando Cortez Garcia
 """Compose shared Gray decoding with the historical REOSSI operations."""
 
 from collections.abc import Iterable
