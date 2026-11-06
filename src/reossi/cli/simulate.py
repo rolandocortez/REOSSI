@@ -7,8 +7,10 @@ import numpy as np
 
 from ..acquisition.capture import check_sequence_size
 from ..acquisition.recording import read_plan
+from ..pipeline import pattern_raster_size
 from ..plan import ScanPlan
 from .common import image_size, print_json, read_json, require_new_output
+from .scan import placement_option
 
 
 def register_simulation_commands(commands) -> None:
@@ -51,8 +53,8 @@ def register_simulation_commands(commands) -> None:
     scene.add_argument(
         "--pattern-placement",
         choices=("emulated_cells", "native_pixels"),
-        default="emulated_cells",
-        help="Retain source cell shifts, or shift the enlarged raster by native pixels",
+        default=None,
+        help="Override acquisition.pattern_placement; source cells by default",
     )
     scene.add_argument("--max-sequence-mib", type=float, default=64)
     scene.add_argument("--max-triangle-tests", type=int, default=20_000_000)
@@ -136,6 +138,8 @@ def simulate_scene(args) -> None:
     from ..simulation.scene import SensorModel, save_scene_result, simulate_scene_scan
 
     plan = read_plan(args.config)
+    placement = placement_option(args, read_json(args.config).get("acquisition", {}))
+    raster_size = pattern_raster_size(plan, placement)
     settings = read_json(args.scene_config)
     output = require_new_output(args.output)
     camera = _device(settings.get("camera", {}), (60, 40))
@@ -150,6 +154,12 @@ def simulate_scene(args) -> None:
         plan.sequence_length,
         camera.image_size,
         itemsize=8,
+        max_sequence_mib=args.max_sequence_mib,
+    )
+    check_sequence_size(
+        plan.sequence_length,
+        raster_size,
+        itemsize=1,
         max_sequence_mib=args.max_sequence_mib,
     )
     surface = settings.get("surface", {})
@@ -191,7 +201,7 @@ def simulate_scene(args) -> None:
         plan,
         sensor=SensorModel(**sensor_values),
         seed=args.seed if args.seed is not None else settings.get("seed", 0),
-        pattern_placement=args.pattern_placement,
+        pattern_placement=placement,
         max_sequence_mib=args.max_sequence_mib,
         max_triangle_tests=args.max_triangle_tests,
         recording_folder=output / "captures" if args.save_captures else None,

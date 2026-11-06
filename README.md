@@ -102,12 +102,15 @@ reossi calibrate-projector --config configs/calibration.json \
   --camera-calibration outputs/camera.npz \
   --input data/projector-observations --output outputs/stereo.npz
 
-reossi capture --config configs/scan_real.json --output recordings/object
+reossi capture --config configs/scan_real.json --output recordings/object \
+  --pattern-placement native_pixels
 reossi reconstruct --input recordings/object --calibration outputs/stereo.npz \
   --identifier-origin one --output outputs/object-cloud
 ```
 
 Calibration can also use existing images, without running either collection command. Camera/projector capture commands operate hardware only when explicitly invoked. See [calibration](docs/calibration.md) for board setup, controls, diagnostics and solver conventions.
+
+The explicit native-pixel option follows the main Chapter 8 displacement case. The default remains the recovered `emulated_cells` profile. Inspect or export either profile before capture with `reossi plan` or `reossi patterns`; both accept the same `--pattern-placement` option. See the [physical validation workflow](docs/physical-validation.md) for setup, recording and replay checks.
 
 ## Configuration and replay
 

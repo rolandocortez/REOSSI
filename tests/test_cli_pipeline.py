@@ -110,18 +110,23 @@ def test_virtual_capture_replay_and_reconstruction_commands(
     assert (cloud / "cloud.ply").is_file()
 
 
-def test_scene_command_uses_explicit_native_pixel_placement(tmp_path, capsys):
+@pytest.mark.parametrize("placement_source", ["flag", "configuration"])
+def test_scene_command_uses_explicit_native_pixel_placement(
+    tmp_path, capsys, placement_source
+):
     plan = tmp_path / "plan.json"
-    plan.write_text(
-        json.dumps(
-            {
-                "mode": "reossi",
-                "projector_size": [24, 16],
-                "emulated_size": [12, 8],
-                "repeats": 1,
-            }
-        )
-    )
+    plan_settings = {
+        "mode": "reossi",
+        "projector_size": [24, 16],
+        "emulated_size": [12, 8],
+        "repeats": 1,
+    }
+    if placement_source == "configuration":
+        plan_settings = {
+            "plan": plan_settings,
+            "acquisition": {"pattern_placement": "native_pixels"},
+        }
+    plan.write_text(json.dumps(plan_settings))
     scene = tmp_path / "scene.json"
     scene.write_text(
         json.dumps(
@@ -137,26 +142,24 @@ def test_scene_command_uses_explicit_native_pixel_placement(tmp_path, capsys):
         )
     )
     output = tmp_path / "native-scan"
-    assert (
-        main(
-            [
-                "simulate-scene",
-                "--config",
-                str(plan),
-                "--scene-config",
-                str(scene),
-                "--output",
-                str(output),
-                "--pattern-placement",
-                "native_pixels",
-            ]
-        )
-        == 0
-    )
+    arguments = [
+        "simulate-scene",
+        "--config",
+        str(plan),
+        "--scene-config",
+        str(scene),
+        "--output",
+        str(output),
+    ]
+    if placement_source == "flag":
+        arguments += ["--pattern-placement", "native_pixels"]
+    assert main(arguments) == 0
     metrics = json.loads(capsys.readouterr().out)
     assert metrics["joint_exact_fraction_of_illuminated"] == 1
     metadata = json.loads((output / "simulation.json").read_text())
     assert metadata["model"]["pattern_placement"] == "native_pixels"
+    saved_plan = json.loads((output / "scan.json").read_text())
+    assert saved_plan["acquisition"]["pattern_placement"] == "native_pixels"
 
 
 def test_saved_cloud_and_identifier_view_commands(scene_cli, tmp_path, capsys):

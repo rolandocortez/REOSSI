@@ -1,6 +1,7 @@
 """Thin commands for plans, pattern export, capture and replay."""
 
 import argparse
+import json
 import shutil
 from pathlib import Path
 
@@ -13,7 +14,12 @@ from ..acquisition.recording import (
     read_plan,
     save_identifier_maps,
 )
-from ..pipeline import generate_pattern_sequence, reconstruct_identifier_maps
+from ..pipeline import (
+    PatternPlacement,
+    generate_pattern_sequence,
+    pattern_raster_size,
+    reconstruct_identifier_maps,
+)
 from .common import image_size, print_json, read_json, require_new_output
 
 
@@ -27,6 +33,13 @@ def register_scan_commands(commands) -> None:
         command = commands.add_parser(name, help=description)
         command.add_argument("--config", type=Path, required=True)
         command.set_defaults(handler=handler)
+        if name != "replay":
+            command.add_argument(
+                "--pattern-placement",
+                choices=("emulated_cells", "native_pixels"),
+                default=None,
+                help="Override acquisition.pattern_placement; source cells by default",
+            )
         if name != "plan":
             command.add_argument("--output", type=Path, required=True)
             command.add_argument(
@@ -103,10 +116,27 @@ def camera_options(args, settings: dict) -> dict:
 
 def inspect_plan(args) -> None:
     plan = read_plan(args.config)
+    settings = read_json(args.config).get("acquisition", {})
+    placement = placement_option(args, settings)
+    raster_size = pattern_raster_size(plan, placement)
+    notes = {"compatibility_notes": plan.compatibility_notes}
+    if placement == "native_pixels":
+        # Encoding limits still affect this profile; only cell placement differs.
+        cell_note = "Displacements roll whole LD identifier cells before rendering"
+        notes = {
+            "compatibility_notes": [
+                note for note in plan.compatibility_notes if note != cell_note
+            ],
+            "source_compatibility_notes": [
+                note for note in plan.compatibility_notes if note == cell_note
+            ],
+        }
     print_json(
         plan.to_dict()
         | {
             "pattern_size": plan.pattern_size,
+            "pattern_placement": placement,
+            "pattern_raster_size": raster_size,
             "scale_factor": plan.scale_factor,
             "native_step": plan.native_step,
             "displacement_count": plan.displacement_count,
@@ -116,16 +146,19 @@ def inspect_plan(args) -> None:
             * plan.repeats
             * plan.sequence_length,
             "normalization_epsilon": plan.normalization_epsilon,
-            "compatibility_notes": plan.compatibility_notes,
         }
+        | notes
     )
 
 
 def export_patterns(args) -> None:
     plan = read_plan(args.config)
+    settings = read_json(args.config).get("acquisition", {})
+    placement = placement_option(args, settings)
+    raster_size = pattern_raster_size(plan, placement)
     check_sequence_size(
         plan.sequence_length,
-        plan.pattern_size,
+        raster_size,
         itemsize=1,
         max_sequence_mib=args.max_sequence_mib,
     )
@@ -134,20 +167,52 @@ def export_patterns(args) -> None:
     for displacement in range(plan.displacement_count):
         np.savez_compressed(
             output / f"patterns_displacement_{displacement}.npz",
-            images=generate_pattern_sequence(plan, displacement),
+            images=generate_pattern_sequence(
+                plan, displacement, pattern_placement=placement
+            ),
         )
-    import json
+    (output / "plan.json").write_text(
+        json.dumps(
+            {
+                "format_version": 1,
+                "plan": plan.to_dict(),
+                "acquisition": settings | {"pattern_placement": placement},
+                "pattern_raster_size": list(raster_size),
+            },
+            indent=2,
+        )
+        + "\n"
+    )
 
-    (output / "plan.json").write_text(json.dumps(plan.to_dict(), indent=2) + "\n")
+
+def placement_option(args, settings: dict) -> PatternPlacement:
+    """Resolve the explicit CLI override before the acquisition configuration."""
+    if not isinstance(settings, dict):
+        raise ValueError("acquisition must be a JSON object")
+    value = getattr(args, "pattern_placement", None)
+    return (
+        settings.get("pattern_placement", "emulated_cells") if value is None else value
+    )
 
 
 def replay(args) -> None:
     plan = read_plan(args.config)
+    settings = read_json(args.config).get("acquisition", {})
+    if not isinstance(settings, dict):
+        raise ValueError("acquisition must be a JSON object")
+    placement = settings.get("pattern_placement")
+    if placement is not None:
+        pattern_raster_size(plan, placement)
     output = require_new_output(args.output)
     sequences = iter_recorded_sequences(
         args.input, plan, layout=args.layout, max_sequence_mib=args.max_sequence_mib
     )
-    save_identifier_maps(output, reconstruct_identifier_maps(sequences, plan), plan)
+    save_identifier_maps(
+        output,
+        reconstruct_identifier_maps(sequences, plan),
+        plan,
+        pattern_placement=placement,
+    )
     white = args.input / "white.png"
     if white.is_file():
         shutil.copy2(white, output / "white.png")
@@ -157,6 +222,7 @@ def capture(args) -> None:
     plan = read_plan(args.config)
     settings = read_json(args.config).get("acquisition", {})
     options = camera_options(args, settings)
+    options["pattern_placement"] = placement_option(args, settings)
     for attribute, default in (
         ("settle_seconds", None),
         ("flip", None),

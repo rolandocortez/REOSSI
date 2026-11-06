@@ -5,10 +5,10 @@ This roadmap records the project scope and validation gates. It is not a claim t
 | Area | Implemented scope | Remaining gate |
 | --- | --- | --- |
 | Package structure | Maintained acquisition, calibration, structured-light, reconstruction, simulation and CLI modules; local wheel/source installation checks | Maintain installation and distribution checks as the code changes |
-| Source continuity | Preserved conventional/LD/REOSSI profiles; Chapter 8's native-target step confirmed; explicit native-pixel simulation option | Resolve intermediate-target spatial/identifier units and historical producer identity before changing that path |
+| Source continuity | Preserved conventional/LD/REOSSI profiles; Chapter 8's native-target step confirmed; opt-in native-pixel export/capture/simulation; [adversarial review](docs/chapter-8-review.md) | Resolve intermediate-target spatial/identifier units and historical producer identity before changing that path |
 | Camera calibration | Board generation, observation collection, image-based solver, diagnostics and saved parameters | Validate the actual printed board, capture geometry and device behavior |
 | Projector/stereo calibration | Grid generation, observation collection, explicit solver criteria, intrinsic reuse and R/T output | Validate physical projector timing, coverage and reprojection geometry |
-| Capture/replay | Complete run/displacement recording, partial-run metadata, explicit dtype and shared decoding | Hardware frame association and full-resolution resource measurement |
+| Capture/replay | Complete recording, partial-run metadata, explicit dtype, shared decoding and opt-in native-pixel placement matching export/simulation | Hardware frame association, physical step verification and full-resolution resource measurement |
 | Reconstruction | Explicit identifier origin/frame/filter choices, aligned masks/points/colors and PLY export | Representative physical reconstruction accuracy |
 | Digital raster | Seeded frame-level diagnostic and known identifier coordinates | Extend only when a new hypothesis requires it |
 | Triangle scenes | Camera/projector geometry, direct rendering, visibility, truth, replay, mesh round trips and a shared-rig three-mode comparison | Broader scenes and independently checked geometric cases |

@@ -45,9 +45,12 @@ python examples/compare_modes.py --output outputs/source-placement-comparison \
   --pattern-placement emulated_cells --plot
 ```
 
-The main scanner and standalone scene command retain `emulated_cells` as their
-default. This walkthrough adds an explicit simulation choice; it does not change
-the physical capture profile.
+The scanner and standalone scene command retain `emulated_cells` as their
+default. `plan`, `patterns`, `capture` and `simulate-scene` accept the same explicit
+selection, with precedence CLI flag, `acquisition.pattern_placement` in the scan
+configuration, then the source-compatible default. Capture records the effective
+profile and raster dimensions. Its hardware behavior still needs a rig session;
+see [physical validation](physical-validation.md).
 
 ## Reading the results
 

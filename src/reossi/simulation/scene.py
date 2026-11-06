@@ -286,7 +286,9 @@ def save_scene_result(
 ) -> None:
     """Save decoded maps, geometry truth, known calibration and sensor settings."""
     folder = Path(folder)
-    save_identifier_maps(folder, result.maps, plan)
+    save_identifier_maps(
+        folder, result.maps, plan, pattern_placement=result.model["pattern_placement"]
+    )
     for name, array in {
         "true_columns": result.true_columns,
         "true_rows": result.true_rows,

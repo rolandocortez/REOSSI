@@ -9,7 +9,7 @@ from zipfile import ZipFile
 
 import numpy as np
 
-from ..pipeline import IdentifierMaps
+from ..pipeline import IdentifierMaps, PatternPlacement, pattern_raster_size
 from ..plan import ScanPlan
 
 
@@ -106,14 +106,35 @@ def iter_recorded_sequences(
 
 
 def save_identifier_maps(
-    folder: str | Path, maps: IdentifierMaps, plan: ScanPlan
+    folder: str | Path,
+    maps: IdentifierMaps,
+    plan: ScanPlan,
+    *,
+    pattern_placement: PatternPlacement | None = None,
 ) -> None:
-    """Save the historical H/V filenames plus explicit processing parameters."""
+    """Save maps and parameters, retaining placement when explicitly supplied."""
+    metadata = scan_metadata(plan, pattern_placement=pattern_placement)
     folder = Path(folder)
     folder.mkdir(parents=True, exist_ok=True)
     np.save(folder / "h_pixels.npy", maps.columns)
     np.save(folder / "v_pixels.npy", maps.rows)
-    metadata = {"format_version": 1, "plan": plan.to_dict()}
     (folder / "scan.json").write_text(
         json.dumps(metadata, indent=2) + "\n", encoding="utf-8"
     )
+
+
+def scan_metadata(
+    plan: ScanPlan, *, pattern_placement: PatternPlacement | None = None
+) -> dict:
+    """Serialize a reusable plan without inventing unknown capture placement.
+
+    Explicit placement is retained separately from numerical plan fields so
+    regenerating a recording's patterns does not silently choose another profile.
+    """
+    metadata = {"format_version": 1, "plan": plan.to_dict()}
+    if pattern_placement is not None:
+        metadata |= {
+            "acquisition": {"pattern_placement": pattern_placement},
+            "pattern_raster_size": list(pattern_raster_size(plan, pattern_placement)),
+        }
+    return metadata

@@ -6,7 +6,7 @@ These notes collect small implementation findings and limitations that matter wh
 
 - Repeated classified bits and transformed displacement identifiers are combined at different stages.
 - Local profiles start identifiers at 1; conventional processing starts at 0. Geometric reconstruction requires an explicit interpretation.
-- The generator shifts whole LD cells, not an explicitly defined native-subcell raster. This remains an open physical-placement question.
+- The recovered `emulated_cells` profile shifts whole LD cells. The opt-in `native_pixels` profile follows Chapter 8's explicit native-target example: enlarge first, then shift by one projector-raster pixel per position. Export, capture and triangle simulation use the same generator. The intermediate-target unit convention and identity of the historical producer remain unresolved; physical operation of this refactored path still needs a rig session.
 - One-based power-of-two grids retain their final-identifier truncation. Maximum-dimension ratios retain integer truncation and the target-grid path retains its second scaling.
 - Stored uint8 intensity arithmetic differs from float64 capture buffers. Source-compatible decoding does not silently promote recordings.
 - The source classifier's later assignments can overwrite an earlier low-direct-illumination assignment.

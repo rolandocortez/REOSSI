@@ -51,6 +51,7 @@ CLI camera overrides are shared by `capture`, `collect-camera-calibration` and `
 | `camera_size` | `--camera-size WIDTHxHEIGHT` | Requested positive integer dimensions: default 1920×1080 for OpenCV and 3840×2160 for OAK. Calibration collection uses the top-level calibration `camera_size`; an override must match it. |
 | `fps` | `--fps` | Finite positive frame-rate request, default 30. |
 | `device_id` | `--device-id` | OAK-only nonempty MXID/IP/USB-name string; null/omitted retains SDK discovery. |
+| `pattern_placement` | `--pattern-placement` | `emulated_cells` by default; `native_pixels` selects one native-pixel step. Supported by `plan`, `patterns`, `capture` and `simulate-scene`; calibration collection and replay do not select projected-pattern placement. |
 | `settle_seconds` | `--settle-seconds` (scan) | Scan only: finite, nonnegative pattern dwell; default .3 s for conventional mode and 1 s for LD/REOSSI. The first pattern of the first sequence waits three times that value. |
 | `flip` | `--flip` / `--no-flip` (scan) | Scan default is false for conventional mode, true for LD/REOSSI; calibration collection defaults false. True rotates frames 180° before processing/saving. |
 | `window_position` | `--window-x` and `--window-y` together (scan) | Projector-window desktop coordinates. Scan default: unchanged placement for conventional mode, `[2020,100]` for LD/REOSSI. Projector-calibration collection defaults to unchanged placement. Adapt this to the actual monitor arrangement. |
@@ -58,6 +59,8 @@ CLI camera overrides are shared by `capture`, `collect-camera-calibration` and `
 | `frame_timeout_seconds` | `--frame-timeout-seconds` (scan) | Finite positive timeout, default 30 s. For scans it is the allowance after dwell; for calibration it limits the interval without a camera frame. Collection uses JSON. |
 
 Keep dimensions, orientation, focus and lens settings consistent between calibration and scans. The camera size is a request, not an intrinsic-matrix resize operation. Scan `acquisition.json` records requested and observed dimensions, settings, completed sequences and session status. Projection-window placement does not change the numerical projector raster.
+
+Pattern placement resolves CLI override first, then `acquisition.pattern_placement`, then `emulated_cells`. Capture saves its effective `pattern_placement` and `pattern_raster_size` in `acquisition.json` and the reusable `scan.json`. Scene results also retain placement in `scan.json`; replay carries an explicitly supplied placement into its output without changing decoding. Exported `plan.json` wraps the original numerical `plan` with acquisition settings and the effective raster; `read_plan` and the CLI accept this wrapper directly. These reusable files retain placement when passed to another command. Historical configurations lacking placement keep the default; no capture provenance is inferred. Resource checks use the effective raster dimensions before generation or camera opening.
 
 ### OAK startup controls
 
@@ -156,7 +159,7 @@ Scene JSON separates these fields:
 | `sensor` | Finite nonnegative `black_level`, `direct_level`, `noise_std`, defaulting to 2/180/0 in 0..255 intensity units. Noise is added before clipping; these are not erasure probabilities. |
 | Root | `seed` for reproducibility and `length_unit` for world/calibration coordinates. |
 
-`--mesh` replaces the generated surface, `--seed`/`--noise-std` override scene values, and `--save-captures` preserves replay-compatible images. `simulate-scene --pattern-placement` selects `emulated_cells` (the source-compatible default) or `native_pixels` (one native pixel per position, with no intermediate target grid). This scene-rendering option is saved in the model metadata and does not change scan-plan JSON or physical acquisition. The raster command exposes camera size, intensity noise and seed as CLI flags. See [simulation](simulation.md) for image formation, supported mesh formats and model limits.
+`--mesh` replaces the generated surface, `--seed`/`--noise-std` override scene values, and `--save-captures` preserves replay-compatible images. `simulate-scene --pattern-placement` selects `emulated_cells` (the source-compatible default) or `native_pixels` (one native pixel per position, with no intermediate target grid), using the same override precedence as capture/export. The selected scene placement is saved in model metadata; it does not alter the numerical scan-plan fields. The raster command exposes camera size, intensity noise and seed as CLI flags. See [simulation](simulation.md) for image formation, supported mesh formats and model limits.
 
 ## Replay, reconstruction and resource controls
 

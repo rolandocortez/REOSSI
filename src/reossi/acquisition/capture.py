@@ -14,10 +14,15 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-from ..pipeline import generate_pattern_sequence, reconstruct_identifier_maps
+from ..pipeline import (
+    PatternPlacement,
+    generate_pattern_sequence,
+    pattern_raster_size,
+    reconstruct_identifier_maps,
+)
 from ..plan import ScanPlan
 from .devices import open_camera, validate_camera_options
-from .recording import save_identifier_maps
+from .recording import save_identifier_maps, scan_metadata
 
 
 def check_sequence_size(
@@ -151,6 +156,7 @@ def run_capture(
     fullscreen: bool = True,
     max_sequence_mib: float = 1024,
     frame_timeout_seconds: float = 30,
+    pattern_placement: PatternPlacement = "emulated_cells",
 ):
     """Record every run of one view, decode it, and save H/V identifier maps.
 
@@ -159,7 +165,10 @@ def run_capture(
     dimensions are checked again before allocating the capture stack. Plan and
     requested acquisition settings are written before opening hardware, and
     completed sequence records survive a failed or interrupted session.
+    Pattern placement is explicit and recorded. The source-cell placement is
+    retained by default; native-pixel placement is an opt-in acquisition choice.
     """
+    raster_size = pattern_raster_size(plan, pattern_placement)
     if camera_size is None:
         camera_size = (3840, 2160) if camera_kind == "oak" else (1920, 1080)
     validate_camera_options(
@@ -194,14 +203,15 @@ def run_capture(
     )
     check_sequence_size(
         plan.sequence_length,
-        plan.pattern_size,
+        raster_size,
         itemsize=1,
         max_sequence_mib=max_sequence_mib,
     )
     output = Path(output)
     output.mkdir(parents=True, exist_ok=False)
     (output / "scan.json").write_text(
-        json.dumps({"format_version": 1, "plan": plan.to_dict()}, indent=2) + "\n",
+        json.dumps(scan_metadata(plan, pattern_placement=pattern_placement), indent=2)
+        + "\n",
         encoding="utf-8",
     )
     options = dict(oak_options or {})
@@ -222,6 +232,8 @@ def run_capture(
         "fullscreen": fullscreen,
         "max_sequence_mib": max_sequence_mib,
         "frame_timeout_seconds": frame_timeout_seconds,
+        "pattern_placement": pattern_placement,
+        "pattern_raster_size": list(raster_size),
         "completed_sequences": [],
     }
 
@@ -259,7 +271,9 @@ def run_capture(
 
         def recorded_positions():
             for displacement in range(plan.displacement_count):
-                patterns = generate_pattern_sequence(plan, displacement)
+                patterns = generate_pattern_sequence(
+                    plan, displacement, pattern_placement=pattern_placement
+                )
 
                 def recorded_runs():
                     for run in range(plan.repeats):
@@ -299,7 +313,7 @@ def run_capture(
                 yield recorded_runs()
 
         maps = reconstruct_identifier_maps(recorded_positions(), plan)
-        save_identifier_maps(output, maps, plan)
+        save_identifier_maps(output, maps, plan, pattern_placement=pattern_placement)
         acquisition["status"] = "complete"
         return maps
     except BaseException as error:
